@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Muli:400,600,700" rel="stylesheet">
+
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Muli', 'Raleway', sans-serif;
+        }
+
+        .container {
+            width: 46%;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container-header {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            margin-bottom: 16px;
+        }
+
+        .container-header h1 {
+            margin: 0;
+            font-weight: 400
+        }
+
+        .container-header-logo {
+            margin: 30px 0;
+            width: 300px;
+            height: 130px;
+            background-image: url('https://wandlee.com/api/img/wandlee.png');
+            background-size: contain;
+        }
+
+        .container-header-intro {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .container-header-intro h1 {
+            font-size: 26px;
+            margin: 0
+        }
+
+        .service-status {
+            padding: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            border-bottom: 1px solid rgb(240, 240, 240);
+        }
+
+        .service-status:last-of-type {
+            border-bottom: none;
+        }
+
+        .service-status-info h1 {
+            font-weight: 400;
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .service-status-icon {
+            margin-right: 24px;
+            width: 30px;
+            height: 30px;
+            background-size: contain;
+            background-repeat: no-repeat
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="container-header">
+            <div class="container-header-logo"></div>
+            
+            <div class="container-header-intro">
+                <h1>Service status</h1>
+
+                <div class="container-header-intro-counter"></div>
+            </div>
+        </div>
+
+        <div class="container-main">
+            <div id="status"></div>
+        </div>
+    </div>
+
+    <script>
+        const serviceOffline = '/offline.png';
+        const serviceOnline = '/online.png';
+        const counterDiv = document.querySelector('.container-header-intro-counter');
+        let refreshCounter;
+        let counterInterval;
+
+        function resetRefreshCounter() {
+            refreshCounter = 60;
+
+            tickCounter();
+
+            if (counterInterval) {
+                clearInterval(counterInterval);
+            }
+
+            counterInterval = setInterval(tickCounter, 1000);
+        }
+
+        function tickCounter() {
+            if (refreshCounter <= 1) {
+                return getServiceStatus();
+            }
+            refreshCounter--;
+            counterDiv.innerText = `Refreshing in ${refreshCounter} seconds...`;
+        }
+
+        function generateServiceStatusHtml({ serviceName, status }) {
+            return `
+            <div class="service-status">
+                <div class="service-status-icon" style="background-image: url(${status ? serviceOnline : serviceOffline})"></div>
+                <div class="service-status-info">
+                    <h1>${serviceName}</h1>
+                    <span>${status ? 'Online' : 'Offline'}</span>
+                </div>
+            </div>
+            `
+        }
+
+        function updateServiceStatus(status) {
+            console.log(status);
+            const html = Object.entries(status).map(([key, value]) => generateServiceStatusHtml({ serviceName: value.title, status: value.isUp })).join('');
+
+            document.getElementById('status').innerHTML = html;
+        }
+
+        function getServiceStatus() {
+            fetch('/status')
+                .then(res => res.json())
+                .then(data => {
+                    updateServiceStatus(data);
+                    resetRefreshCounter();
+                })
+                .catch(e => console.error(`Error: ${e}`))
+        }
+
+        window.addEventListener('blur', () => clearInterval(counterInterval));
+        window.addEventListener('focus', () => getServiceStatus());
+
+        getServiceStatus();
+    </script>
+
+</body>
+
+</html>
