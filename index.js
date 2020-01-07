@@ -22,7 +22,7 @@ const app = express();
 //     }
 // }
 
-const allowedOrigins = ['https://status.wandlee.com', 'http://localhost:3005'];
+const allowedOrigins = ['https://service1.com', 'http://localhost:3005'];
 
 app.use('/', express.static('static'));
 app.use(bodyParser.json({ limit: '50mb' }));
