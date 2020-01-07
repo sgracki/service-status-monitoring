@@ -1,4 +1,11 @@
 {
+  "name": "service-status",
+  "version": "1.0.0",
+  "description": "Monitoring services service implementation using NodeJs",
+  "main": "index.js",
+  "author": "Szymon Grącki <dev.sgracki@gmail.com>",
+  "license": "MIT",
+  "private": false,
   "dependencies": {
     "bluebird": "^3.5.4",
     "body-parser": "^1.19.0",
